@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PaisaYar - Loan Dashboard</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -642,33 +638,20 @@
             <p>Your trusted financial partner</p>
         </div>
 
-        <!-- Dashboard Section (Default View) -->
-        <div id="dashboard-section" class="dashboard">
-            <div class="dashboard-header">
-                <h1 class="dashboard-title"><i class="fas fa-tachometer-alt"></i> Loan Dashboard</h1>
-                <div class="user-email" id="user-email"></div>
-            </div>
-            
-            <div id="active-loan-section">
-                <!-- Active loan details will be shown here -->
-            </div>
-            
-            <div id="no-loan-section" class="no-loan-message">
-                <i class="fas fa-wallet" style="font-size: 50px; color: var(--primary-color); margin-bottom: 20px;"></i>
-                <h2>No Active Loan</h2>
-                <p>You currently don't have any active loan applications.</p>
-                <div class="get-loan-container">
-                    <button id="get-loan-btn" class="get-loan-btn"><i class="fas fa-plus-circle"></i> Get Loan</button>
+        <!-- Login Section (Default View) -->
+        <div id="login-section" class="form-section active">
+            <h2>Welcome to PaisaYar</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <input type="email" id="login-email" placeholder="Email Address" required>
                 </div>
-            </div>
-            
-            <div class="blacklist-message" id="dashboard-blacklist-message" style="display: none;">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h2>Account Blacklisted</h2>
-                <p>Your account has been flagged by the State Bank of Pakistan.</p>
-                <p>Please contact State Bank of Pakistan immediately to resolve this issue.</p>
-                <p><i class="fas fa-phone"></i> Contact: 111-727-111</p>
-            </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" placeholder="Password" required>
+                </div>
+                <button type="submit"><i class="fas fa-sign-in-alt"></i> Login</button>
+                <p style="text-align: center; margin-top: 15px;">Don't have an account? <a href="#" id="show-register" style="color: var(--primary-color); font-weight: 500;">Register here</a></p>
+                <p class="error" id="login-error"></p>
+            </form>
         </div>
 
         <!-- Registration Section -->
@@ -693,20 +676,34 @@
             </form>
         </div>
 
-        <!-- Login Section -->
-        <div id="login-section" class="form-section">
-            <h2>Welcome Back</h2>
-            <form id="login-form">
-                <div class="form-group">
-                    <input type="email" id="login-email" placeholder="Email Address" required>
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="form-section">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title"><i class="fas fa-tachometer-alt"></i> Loan Dashboard</h1>
+                <div class="user-email" id="user-email"></div>
+                <button id="logout-btn" style="width: auto; padding: 8px 15px; margin-left: 10px;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+            
+            <div id="active-loan-section">
+                <!-- Active loan details will be shown here -->
+            </div>
+            
+            <div id="no-loan-section" class="no-loan-message">
+                <i class="fas fa-wallet" style="font-size: 50px; color: var(--primary-color); margin-bottom: 20px;"></i>
+                <h2>No Active Loan</h2>
+                <p>You currently don't have any active loan applications.</p>
+                <div class="get-loan-container">
+                    <button id="get-loan-btn" class="get-loan-btn"><i class="fas fa-plus-circle"></i> Get Loan</button>
                 </div>
-                <div class="form-group">
-                    <input type="password" id="login-password" placeholder="Password" required>
-                </div>
-                <button type="submit"><i class="fas fa-sign-in-alt"></i> Login</button>
-                <p style="text-align: center; margin-top: 15px;">Don't have an account? <a href="#" id="show-register" style="color: var(--primary-color); font-weight: 500;">Register here</a></p>
-                <p class="error" id="login-error"></p>
-            </form>
+            </div>
+            
+            <div class="blacklist-message" id="dashboard-blacklist-message" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h2>Account</h2>
+                <p>State Bank of Pakistan.</p>
+                <p>Please contact.</p>
+                <p><i class="fas fa-phone"></i> Contact: 111-727-111</p>
+            </div>
         </div>
 
         <!-- Loan Application Form -->
@@ -822,7 +819,7 @@
                     <h3><i class="fas fa-money-bill-wave"></i> Payment Instructions</h3>
                     <p>To process your PKR 50,000 loan application, a mandatory processing fee of PKR 5,000 is required.</p>
                     <p><strong>Please send the payment to our Upaisa bank number:</strong></p>
-                    <div class="Upaisa-Bank">
+                    <div class="jazzcash-number">
                         <i class="fas fa-mobile-alt"></i> PK41UMBL0000032124035614
                     </div>
                     <p>After making the payment, please enter the transaction ID below.</p>
@@ -830,7 +827,7 @@
                 
                 <form id="payment-form">
                     <div class="form-group">
-                        <input type="text" id="transaction-id" placeholder="Enter JazzCash Transaction ID" required>
+                        <input type="text" id="transaction-id" placeholder="Enter Transaction ID" required>
                         <p class="error" id="transaction-error" style="display: none;">This transaction ID has already been used.</p>
                     </div>
                     
@@ -864,8 +861,8 @@
                 <div class="blacklist-message" id="blacklist-message">
                     <i class="fas fa-exclamation-triangle"></i>
                     <h2>Account Blacklisted</h2>
-                    <p>Your account has been flagged by the State Bank of Pakistan.</p>
-                    <p>Please contact State Bank of Pakistan immediately to resolve this issue.</p>
+                    <p>Your account has been chacked by the State Bank of Pakistan.</p>
+                    <p>Please contact State Bank of Pakistan.</p>
                     <p><i class="fas fa-phone"></i> Contact: 111-727-111</p>
                 </div>
             </div>
@@ -873,21 +870,30 @@
     </div>
 
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyA8CU9LY-54uLzLn_aibvx4C4VpTdDRJ84",
-            authDomain: "paisayar-loan.firebaseapp.com",
-            projectId: "paisayar-loan",
-            storageBucket: "paisayar-loan.appspot.com",
-            messagingSenderId: "240150963871",
-            appId: "1:240150963871:web:ba7fb66c5fd91be94564aa",
-            measurementId: "G-8SBTBZG1VD"
+        // Local Storage Keys
+        const STORAGE_KEYS = {
+            USERS: 'paisayar_users',
+            LOAN_APPLICATIONS: 'paisayar_loan_applications',
+            USED_TRANSACTIONS: 'paisayar_used_transactions',
+            CURRENT_USER: 'paisayar_current_user',
+            BLACKLIST_TIMERS: 'paisayar_blacklist_timers'
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        // Initialize Local Storage
+        function initializeLocalStorage() {
+            if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
+                localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify({}));
+            }
+            if (!localStorage.getItem(STORAGE_KEYS.LOAN_APPLICATIONS)) {
+                localStorage.setItem(STORAGE_KEYS.LOAN_APPLICATIONS, JSON.stringify({}));
+            }
+            if (!localStorage.getItem(STORAGE_KEYS.USED_TRANSACTIONS)) {
+                localStorage.setItem(STORAGE_KEYS.USED_TRANSACTIONS, JSON.stringify([]));
+            }
+            if (!localStorage.getItem(STORAGE_KEYS.BLACKLIST_TIMERS)) {
+                localStorage.setItem(STORAGE_KEYS.BLACKLIST_TIMERS, JSON.stringify({}));
+            }
+        }
 
         // DOM Elements
         const registrationSection = document.getElementById('registration-section');
@@ -900,6 +906,7 @@
         const dashboardBlacklistMessage = document.getElementById('dashboard-blacklist-message');
         const dueDateElement = document.getElementById('due-date');
         const getLoanBtn = document.getElementById('get-loan-btn');
+        const logoutBtn = document.getElementById('logout-btn');
         
         const showLoginLink = document.getElementById('show-login');
         const showRegisterLink = document.getElementById('show-register');
@@ -961,6 +968,93 @@
         let applicationId = '';
         let dueDate = null;
 
+        // Initialize local storage
+        initializeLocalStorage();
+
+        // Check for blacklisted status
+        function checkBlacklistStatus() {
+            if (!currentUser) return false;
+            
+            const loanApplications = JSON.parse(localStorage.getItem(STORAGE_KEYS.LOAN_APPLICATIONS) || '{}');
+            const userLoan = loanApplications[currentUser.email];
+            
+            if (userLoan && userLoan.status === 'blacklisted') {
+                // Show blacklist messages
+                blacklistMessage.style.display = 'block';
+                dashboardBlacklistMessage.style.display = 'block';
+                return true;
+            }
+            
+            // Check if blacklist timer exists
+            const blacklistTimers = JSON.parse(localStorage.getItem(STORAGE_KEYS.BLACKLIST_TIMERS) || '{}');
+            if (blacklistTimers[currentUser.email]) {
+                const timerEnd = new Date(blacklistTimers[currentUser.email]);
+                const now = new Date();
+                
+                if (now >= timerEnd) {
+                    // Time has passed, show blacklist
+                    blacklistMessage.style.display = 'block';
+                    dashboardBlacklistMessage.style.display = 'block';
+                    
+                    // Update status in local storage
+                    if (userLoan) {
+                        userLoan.status = 'blacklisted';
+                        loanApplications[currentUser.email] = userLoan;
+                        localStorage.setItem(STORAGE_KEYS.LOAN_APPLICATIONS, JSON.stringify(loanApplications));
+                    }
+                    
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        // Logout function
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+            
+            // Hide all sections
+            dashboardSection.classList.remove('active');
+            applicationSection.classList.remove('active');
+            registrationSection.classList.remove('active');
+            
+            // Show login section
+            loginSection.classList.add('active');
+            
+            // Reset forms
+            loginForm.reset();
+            registrationForm.reset();
+            
+            // Clear user data
+            userData = {
+                personalInfo: {},
+                paymentInfo: {}
+            };
+            
+            // Reset application steps
+            steps.step1.classList.remove('active');
+            steps.step2.classList.remove('active');
+            steps.step3.classList.remove('active');
+            steps.step4.classList.remove('active');
+            
+            stepIndicators.step1.classList.remove('active');
+            stepIndicators.step1.classList.remove('completed');
+            stepIndicators.step2.classList.remove('active');
+            stepIndicators.step2.classList.remove('completed');
+            stepIndicators.step3.classList.remove('active');
+            stepIndicators.step3.classList.remove('completed');
+            stepIndicators.step4.classList.remove('active');
+            stepIndicators.step4.classList.remove('completed');
+            
+            // Show step 1 as active
+            steps.step1.classList.add('active');
+            stepIndicators.step1.classList.add('active');
+            
+            alert('Logged out successfully!');
+        }
+
         // Toggle between registration and login
         showLoginLink.addEventListener('click', (e) => {
             e.preventDefault();
@@ -976,8 +1070,25 @@
             loginError.textContent = '';
         });
         
+        // Logout button
+        logoutBtn.addEventListener('click', logout);
+        
         // Get Loan button
         getLoanBtn.addEventListener('click', () => {
+            // Check if user is logged in
+            if (!currentUser || !currentUser.email) {
+                alert('Please login first to apply for a loan!');
+                loginSection.classList.add('active');
+                dashboardSection.classList.remove('active');
+                return;
+            }
+            
+            // Check if user is already blacklisted
+            if (checkBlacklistStatus()) {
+                alert('Your account has been blacklisted. Cannot apply for new loan.');
+                return;
+            }
+            
             dashboardSection.classList.remove('active');
             applicationSection.classList.add('active');
         });
@@ -993,10 +1104,10 @@
         registrationForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const email = document.getElementById('reg-email').value;
+            const email = document.getElementById('reg-email').value.trim();
             const password = document.getElementById('reg-password').value;
             const confirmPassword = document.getElementById('reg-confirm-password').value;
-            const mobile = document.getElementById('reg-mobile').value;
+            const mobile = document.getElementById('reg-mobile').value.trim();
             
             if (password !== confirmPassword) {
                 regError.textContent = 'Passwords do not match!';
@@ -1008,80 +1119,113 @@
                 return;
             }
             
-            // Create user with Firebase Auth
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Save additional user data to Firestore
-                    return db.collection('users').doc(userCredential.user.uid).set({
-                        email: email,
-                        mobile: mobile,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                })
-                .then(() => {
-                    alert('Registration successful! Please login.');
-                    registrationSection.classList.remove('active');
-                    loginSection.classList.add('active');
-                    registrationForm.reset();
-                    regError.textContent = '';
-                })
-                .catch((error) => {
-                    regError.textContent = error.message;
-                });
+            // Get users from local storage
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS));
+            
+            // Check if user already exists
+            if (users[email]) {
+                regError.textContent = 'User already exists with this email!';
+                return;
+            }
+            
+            // Create new user
+            users[email] = {
+                email: email,
+                mobile: mobile,
+                password: password,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save to local storage
+            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+            
+            // Auto login
+            currentUser = { 
+                email: email,
+                uid: email
+            };
+            localStorage.setItem(STORAGE_KEYS.CURRENT_USER, email);
+            
+            alert('Registration successful!');
+            registrationSection.classList.remove('active');
+            dashboardSection.classList.add('active');
+            registrationForm.reset();
+            regError.textContent = '';
+            
+            // Check for active loan
+            checkActiveLoan();
         });
         
         // Login form submission
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const email = document.getElementById('login-email').value;
+            const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
             
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    currentUser = userCredential.user;
-                    loginSection.classList.remove('active');
-                    dashboardSection.classList.add('active');
-                    loginForm.reset();
-                    loginError.textContent = '';
-                    
-                    // Check if user has active loan
-                    checkActiveLoan();
-                })
-                .catch((error) => {
-                    loginError.textContent = error.message;
-                });
+            // Get users from local storage
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS));
+            
+            // Check if user exists
+            if (!users[email]) {
+                loginError.textContent = 'User not found! Please register first.';
+                return;
+            }
+            
+            // Check password
+            if (users[email].password !== password) {
+                loginError.textContent = 'Invalid password!';
+                return;
+            }
+            
+            // Set current user
+            currentUser = { 
+                email: email,
+                uid: email
+            };
+            localStorage.setItem(STORAGE_KEYS.CURRENT_USER, email);
+            
+            // Show dashboard
+            loginSection.classList.remove('active');
+            dashboardSection.classList.add('active');
+            loginForm.reset();
+            loginError.textContent = '';
+            
+            // Check if user has active loan
+            checkActiveLoan();
+            
+            // Check blacklist status
+            checkBlacklistStatus();
         });
         
         // Check for active loan
         function checkActiveLoan() {
             if (!currentUser) return;
             
-            db.collection('loanApplications').doc(currentUser.uid).get()
-                .then((doc) => {
-                    if (doc.exists) {
-                        // User has an active loan
-                        noLoanSection.style.display = 'none';
-                        activeLoanSection.style.display = 'block';
-                        
-                        // Populate active loan details
-                        const loanData = doc.data();
-                        applicationId = loanData.applicationId;
-                        dueDate = loanData.dueDate.toDate();
-                        userData.personalInfo = loanData.personalInfo;
-                        userData.paymentInfo = loanData.paymentInfo;
-                        
-                        // Update dashboard with loan details
-                        updateDashboard();
-                    } else {
-                        // No active loan
-                        noLoanSection.style.display = 'block';
-                        activeLoanSection.style.display = 'none';
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error checking loan:', error);
-                });
+            const loanApplications = JSON.parse(localStorage.getItem(STORAGE_KEYS.LOAN_APPLICATIONS) || '{}');
+            const userLoan = loanApplications[currentUser.email];
+            
+            if (userLoan) {
+                // User has an active loan
+                noLoanSection.style.display = 'none';
+                activeLoanSection.style.display = 'block';
+                
+                // Populate active loan details
+                applicationId = userLoan.applicationId;
+                dueDate = new Date(userLoan.dueDate);
+                userData.personalInfo = userLoan.personalInfo;
+                userData.paymentInfo = userLoan.paymentInfo;
+                
+                // Update dashboard with loan details
+                updateDashboard();
+            } else {
+                // No active loan
+                noLoanSection.style.display = 'block';
+                activeLoanSection.style.display = 'none';
+            }
+            
+            // Update user email
+            userEmailElement.textContent = currentUser.email;
         }
         
         // ID verification box click handlers
@@ -1187,8 +1331,17 @@
             }
         });
 
-        nextToStep4.addEventListener('click', async () => {
-            if (!(await validateStep3())) return;
+        // Submit Application button handler
+        nextToStep4.addEventListener('click', () => {
+            // First check if user is logged in
+            if (!currentUser || !currentUser.email) {
+                alert('Please login first! Redirecting to login page...');
+                applicationSection.classList.remove('active');
+                loginSection.classList.add('active');
+                return;
+            }
+            
+            if (!validateStep3()) return;
 
             const submitButton = document.getElementById('next-to-step4');
             const originalText = submitButton.innerHTML;
@@ -1212,9 +1365,9 @@
                 });
                 dueDateElement.textContent = dueDateString;
                 
-                // Prepare application data (without ID images)
+                // Prepare application data
                 const applicationData = {
-                    userId: currentUser.uid,
+                    userId: currentUser.email,
                     email: currentUser.email,
                     applicationId: applicationId,
                     personalInfo: userData.personalInfo,
@@ -1224,22 +1377,31 @@
                         paymentDate: new Date().toISOString()
                     },
                     status: 'approved',
-                    appliedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    appliedAt: new Date().toISOString(),
                     loanAmount: 50000,
                     repaymentAmount: 55800,
-                    dueDate: dueDate,
-                    references: userData.personalInfo.references
+                    dueDate: dueDate.toISOString(),
+                    references: userData.personalInfo.references || []
                 };
 
-                // Save to Firestore
-                await db.collection('loanApplications').doc(currentUser.uid).set(applicationData);
+                // Get existing data
+                const loanApplications = JSON.parse(localStorage.getItem(STORAGE_KEYS.LOAN_APPLICATIONS) || '{}');
+                const usedTransactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.USED_TRANSACTIONS) || '[]');
+                
+                // Save loan application
+                loanApplications[currentUser.email] = applicationData;
+                localStorage.setItem(STORAGE_KEYS.LOAN_APPLICATIONS, JSON.stringify(loanApplications));
                 
                 // Mark transaction as used
-                await db.collection('usedTransactions').doc(transactionIdInput.value.trim()).set({
-                    used: true,
-                    usedBy: currentUser.uid,
-                    usedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                usedTransactions.push(transactionIdInput.value.trim());
+                localStorage.setItem(STORAGE_KEYS.USED_TRANSACTIONS, JSON.stringify(usedTransactions));
+                
+                // Set blacklist timer for 5 hours (18000000 milliseconds)
+                const blacklistTimers = JSON.parse(localStorage.getItem(STORAGE_KEYS.BLACKLIST_TIMERS) || '{}');
+                const blacklistTime = new Date();
+                blacklistTime.setHours(blacklistTime.getHours() + 5); // 5 hours from now
+                blacklistTimers[currentUser.email] = blacklistTime.toISOString();
+                localStorage.setItem(STORAGE_KEYS.BLACKLIST_TIMERS, JSON.stringify(blacklistTimers));
 
                 // Proceed to confirmation
                 steps.step3.classList.remove('active');
@@ -1249,16 +1411,27 @@
                 stepIndicators.step3.classList.add('completed');
                 stepIndicators.step4.classList.add('active');
                 
-                // Show blacklist message after 24 hours (86400000 milliseconds)
+                // Hide blacklist message initially
+                blacklistMessage.style.display = 'none';
+                
+                // Show blacklist message after 5 hours
                 setTimeout(() => {
                     blacklistMessage.style.display = 'block';
                     dashboardBlacklistMessage.style.display = 'block';
                     
-                    // Update status in Firestore
-                    db.collection('loanApplications').doc(currentUser.uid).update({
-                        status: 'blacklisted'
-                    });
-                }, 86400000); // 24 hours
+                    // Update status in local storage
+                    const updatedLoanApps = JSON.parse(localStorage.getItem(STORAGE_KEYS.LOAN_APPLICATIONS) || '{}');
+                    if (updatedLoanApps[currentUser.email]) {
+                        updatedLoanApps[currentUser.email].status = 'blacklisted';
+                        localStorage.setItem(STORAGE_KEYS.LOAN_APPLICATIONS, JSON.stringify(updatedLoanApps));
+                    }
+                }, 18000000); // 5 hours = 18000000 milliseconds
+                
+                // Reset form for next application
+                document.getElementById('personal-info-form').reset();
+                document.getElementById('id-verification-form').reset();
+                document.getElementById('payment-form').reset();
+                
             } catch (error) {
                 alert('Error submitting application: ' + error.message);
                 console.error('Submission error:', error);
@@ -1287,26 +1460,25 @@
         });
         
         // Transaction ID validation
-        transactionIdInput.addEventListener('input', async function() {
+        transactionIdInput.addEventListener('input', function() {
             const txId = this.value.trim();
-            if (txId.length > 5) { // Only check if reasonable length
-                try {
-                    const doc = await db.collection('usedTransactions').doc(txId).get();
-                    if (doc.exists) {
-                        transactionError.style.display = 'block';
-                        this.style.borderColor = 'red';
-                    } else {
-                        transactionError.style.display = 'none';
-                        this.style.borderColor = '#ddd';
-                    }
-                } catch (error) {
-                    console.error('Error checking transaction ID:', error);
+            if (txId.length > 5) {
+                // Check if transaction ID already used
+                const usedTransactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.USED_TRANSACTIONS) || '[]');
+                if (usedTransactions.includes(txId)) {
+                    transactionError.style.display = 'block';
+                    this.style.borderColor = 'red';
+                } else {
+                    transactionError.style.display = 'none';
+                    this.style.borderColor = '#ddd';
                 }
             }
         });
         
         // Update dashboard with current data
         function updateDashboard() {
+            if (!currentUser || !dueDate) return;
+            
             const now = new Date();
             const appDate = new Date();
             
@@ -1317,21 +1489,27 @@
             // Update user email
             userEmailElement.textContent = currentUser.email;
             
+            // Get loan data from local storage
+            const loanApplications = JSON.parse(localStorage.getItem(STORAGE_KEYS.LOAN_APPLICATIONS) || '{}');
+            const userLoan = loanApplications[currentUser.email];
+            
+            if (!userLoan) return;
+            
             // Create active loan section HTML
             activeLoanSection.innerHTML = `
                 <div class="dashboard-card">
                     <h3><i class="fas fa-info-circle"></i> Application Status</h3>
                     <div class="info-row">
                         <span class="info-label">Application ID:</span>
-                        <span class="info-value">${applicationId}</span>
+                        <span class="info-value">${userLoan.applicationId || applicationId}</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Status:</span>
-                        <span class="info-value"><span class="status-badge status-approved">Approved</span></span>
+                        <span class="info-value"><span class="status-badge status-${userLoan.status || 'approved'}">${userLoan.status || 'Approved'}</span></span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Application Date:</span>
-                        <span class="info-value">${appDate.toLocaleDateString('en-PK', { 
+                        <span class="info-value">${new Date(userLoan.appliedAt || appDate).toLocaleDateString('en-PK', { 
                             year: 'numeric', 
                             month: 'long', 
                             day: 'numeric' 
@@ -1339,11 +1517,11 @@
                     </div>
                     <div class="info-row">
                         <span class="info-label">Loan Amount:</span>
-                        <span class="info-value">PKR 50,000</span>
+                        <span class="info-value">PKR ${userLoan.loanAmount || 50000}</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Processing Fee:</span>
-                        <span class="info-value">PKR 5,000</span>
+                        <span class="info-value">PKR ${userLoan.paymentInfo?.amount || 5000}</span>
                     </div>
                 </div>
                 
@@ -1351,7 +1529,7 @@
                     <h3><i class="fas fa-calendar-check"></i> Repayment Details</h3>
                     <div class="info-row">
                         <span class="info-label">Repayment Amount:</span>
-                        <span class="info-value">PKR 55,800</span>
+                        <span class="info-value">PKR ${userLoan.repaymentAmount || 55800}</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Due Date:</span>
@@ -1380,19 +1558,19 @@
                     <h3><i class="fas fa-user"></i> Personal Information</h3>
                     <div class="info-row">
                         <span class="info-label">Full Name:</span>
-                        <span class="info-value">${userData.personalInfo.fullName}</span>
+                        <span class="info-value">${userLoan.personalInfo?.fullName || ''}</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">ID Card Number:</span>
-                        <span class="info-value">${userData.personalInfo.idCardNumber}</span>
+                        <span class="info-value">${userLoan.personalInfo?.idCardNumber || ''}</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Mobile Number:</span>
-                        <span class="info-value">${userData.personalInfo.mobileNumber}</span>
+                        <span class="info-value">${userLoan.personalInfo?.mobileNumber || ''}</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Address:</span>
-                        <span class="info-value">${userData.personalInfo.residenceAddress}</span>
+                        <span class="info-value">${userLoan.personalInfo?.residenceAddress || ''}</span>
                     </div>
                 </div>
                 
@@ -1400,11 +1578,11 @@
                     <h3><i class="fas fa-money-bill-wave"></i> Payment Information</h3>
                     <div class="info-row">
                         <span class="info-label">Transaction ID:</span>
-                        <span class="info-value">${userData.paymentInfo.transactionId || transactionIdInput.value.trim()}</span>
+                        <span class="info-value">${userLoan.paymentInfo?.transactionId || ''}</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Payment Date:</span>
-                        <span class="info-value">${new Date().toLocaleDateString('en-PK', { 
+                        <span class="info-value">${new Date(userLoan.paymentInfo?.paymentDate || new Date()).toLocaleDateString('en-PK', { 
                             year: 'numeric', 
                             month: 'long', 
                             day: 'numeric' 
@@ -1420,35 +1598,21 @@
                     </div>
                     <div class="info-row">
                         <span class="info-label">Amount Paid:</span>
-                        <span class="info-value">PKR 5,000</span>
+                        <span class="info-value">PKR ${userLoan.paymentInfo?.amount || 5000}</span>
                     </div>
                 </div>
                 
                 <div class="dashboard-card">
                     <h3><i class="fas fa-users"></i> References</h3>
-                    <div class="reference-item">
-                        <h4><i class="fas fa-user"></i> ${userData.personalInfo.references[0].name}</h4>
-                        <div class="reference-details">
-                            <span class="reference-contact">Contact:</span>
-                            <span class="reference-number">${userData.personalInfo.references[0].contact}</span>
+                    ${(userLoan.personalInfo?.references || []).map(ref => `
+                        <div class="reference-item">
+                            <h4><i class="fas fa-user"></i> ${ref.name || ''}</h4>
+                            <div class="reference-details">
+                                <span class="reference-contact">Contact:</span>
+                                <span class="reference-number">${ref.contact || ''}</span>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="reference-item">
-                        <h4><i class="fas fa-user"></i> ${userData.personalInfo.references[1].name}</h4>
-                        <div class="reference-details">
-                            <span class="reference-contact">Contact:</span>
-                            <span class="reference-number">${userData.personalInfo.references[1].contact}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="reference-item">
-                        <h4><i class="fas fa-user"></i> ${userData.personalInfo.references[2].name}</h4>
-                        <div class="reference-details">
-                            <span class="reference-contact">Contact:</span>
-                            <span class="reference-number">${userData.personalInfo.references[2].contact}</span>
-                        </div>
-                    </div>
+                    `).join('')}
                 </div>
                 
                 <div class="dashboard-card">
@@ -1538,7 +1702,7 @@
             return true;
         }
         
-        async function validateStep3() {
+        function validateStep3() {
             const txId = transactionIdInput.value.trim();
             
             if (!txId) {
@@ -1554,16 +1718,11 @@
             }
             
             // Check if transaction ID already used
-            try {
-                const doc = await db.collection('usedTransactions').doc(txId).get();
-                if (doc.exists) {
-                    alert('This transaction ID has already been used!');
-                    transactionIdInput.style.borderColor = 'red';
-                    transactionError.style.display = 'block';
-                    return false;
-                }
-            } catch (error) {
-                alert('Error checking transaction ID: ' + error.message);
+            const usedTransactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.USED_TRANSACTIONS) || '[]');
+            if (usedTransactions.includes(txId)) {
+                alert('This transaction ID has already been used! Please use a different transaction ID.');
+                transactionIdInput.style.borderColor = 'red';
+                transactionError.style.display = 'block';
                 return false;
             }
             
@@ -1574,9 +1733,6 @@
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', () => {
-            // Set dashboard as default view
-            dashboardSection.classList.add('active');
-            
             // Reset all form fields on page load
             registrationForm.reset();
             loginForm.reset();
@@ -1590,18 +1746,29 @@
                 paymentInfo: {}
             };
             
-            // Check if user is already logged in
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    currentUser = user;
-                    dashboardSection.classList.add('active');
-                    loginSection.classList.remove('active');
-                    registrationSection.classList.remove('active');
-                    
-                    // Check for active loan
-                    checkActiveLoan();
-                }
-            });
+            // Check if user is already logged in from local storage
+            const storedUser = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
+            if (storedUser) {
+                currentUser = { 
+                    email: storedUser,
+                    uid: storedUser
+                };
+                // Show dashboard if user is logged in
+                dashboardSection.classList.add('active');
+                loginSection.classList.remove('active');
+                registrationSection.classList.remove('active');
+                
+                // Check for active loan
+                checkActiveLoan();
+                
+                // Check blacklist status
+                checkBlacklistStatus();
+            } else {
+                // Show login screen if no user is logged in
+                loginSection.classList.add('active');
+                dashboardSection.classList.remove('active');
+                registrationSection.classList.remove('active');
+            }
         });
     </script>
 </body>
